@@ -7,8 +7,8 @@ pub struct Threshold {
 }
 
 impl Threshold {
-    pub fn new(threshold: f64) -> Self {
-        Self { threshold: (127.5 + threshold.min(1.0).max(-1.0) * 127.5).round() as u8  }
+    pub fn new(threshold: i32) -> Self {
+        Self { threshold: threshold.max(0).min(255) as u8  }
     }
 }
 

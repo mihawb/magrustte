@@ -1,8 +1,6 @@
 use std::time::Instant;
-use image::GenericImageView;
-use ndarray::{Array3, Axis, s, stack};
-use fltk::{app::App, frame::Frame, window::Window, image::RgbImage, enums::ColorDepth};
-use fltk::prelude::{GroupExt, WidgetBase, WidgetExt};
+use ndarray::Array3;
+use fltk::{app::App, frame::Frame, window::Window, image::RgbImage, enums::ColorDepth, prelude::*};
 // use native_dialog::FileDialog;
 
 pub mod imgarray;
@@ -21,93 +19,24 @@ use crate::filters::vignette::Vignette;
 use crate::filters::blur::{Blur, Mode as BlurMode};
 use crate::filters::compose::Compose;
 
-
-
-struct TestContainer {
-    filter: Filter,
-    name: String,
-}
-
-fn mainaa() {
-    //
-    // let image_path = match FileDialog::new()
-    //     .set_location("~")
-    //     .add_filter("Image (png, jpg, heic)", &["png", "jpg", "heic"])
-    //     .show_open_single_file() {
-    //     Ok(op) => match op {
-    //         Some(p) => p,
-    //         None => panic!("PathBuf option is empty (file was not chosen)"),
-    //     },
-    //     Err(e) => panic!("Problem with file dialog: {}", e),
-    // };
-
-    let filter_tests: Vec<TestContainer> = vec![
-        // TestContainer {
-        //     filter: Filter::Threshold(Threshold::new(0.0)),
-        //     name: "Threshold".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Invert(Invert::new()),
-        //     name: "Invert".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Grayscale(Grayscale::new()),
-        //     name: "Grayscale".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Huerotate(Huerotate::new(0.5)),
-        //     name: "Huerotate".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Lighting(Lighting::new(0.5, 0.0)),
-        //     name: "Lighting_brightness_up".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Lighting(Lighting::new(0.0, -0.5)),
-        //     name: "Lighting_contrast_down".to_string(),
-        // },
-        // TestContainer {
-        //     filter: Filter::Lighting(Lighting::new(0.0, 0.5)),
-        //     name: "Lighting_contrast_up".to_string(),
-        // },
-        TestContainer {
-            filter: Filter::Vignette(Vignette::new(-0.8, 0.6)),
-            name: "Vignette".to_string(),
-        }
-    ];
-
-    let img: Array3<u8> = AsImage::read("bob.png");
-    println!("dimensions {:?}", img.dim());
-
-    // let filter = Filter::Threshold(Threshold::new(0.0));
-    // let test_name = "threshold".to_string();
-    // let start = Instant::now();
-    // let res = filter.apply(&img);
-    // println!("{} filter applied in {:?}", test_name, start.elapsed());
-    // res.save(&format!("res_{}.png", test_name));
-
-    for test_case in filter_tests {
-        let start = Instant::now();
-        let res = test_case.filter.apply(&img);
-        println!("{} filter applied in {:?}", test_case.name, start.elapsed());
-        res.save(&format!("res_{}.png", test_case.name));
-    }
-}
-
-fn mainbb() {
-    let img: Array3<u8> = AsImage::read("pic.jpg");
-    let filter = Filter::Blur(Blur::new(-0.8, BlurMode::Gaussian));
-    println!("dimensions {:?}", img.dim());
-    filter.apply(&img);
-}
+// let image_path = match FileDialog::new()
+//     .set_location("~")
+//     .add_filter("Image (png, jpg, heic)", &["png", "jpg", "heic"])
+//     .show_open_single_file() {
+//     Ok(op) => match op {
+//         Some(p) => p,
+//         None => panic!("PathBuf option is empty (file was not chosen)"),
+//     },
+//     Err(e) => panic!("Problem with file dialog: {}", e),
+// };
 
 fn main() {
     let img: Array3<u8> = AsImage::read("pic.jpg");
     println!("dimensions {:?}", img.dim());
 
-    let gaussian = Filter::Blur(Blur::new(1.0, BlurMode::Gaussian));
-    let boxb = Filter::Blur(Blur::new(1.0, BlurMode::Box));
-    let median = Filter::Blur(Blur::new(1.0, BlurMode::Median));
+    let gaussian = Filter::Blur(Blur::new(5, BlurMode::Gaussian));
+    let boxb = Filter::Blur(Blur::new(5, BlurMode::Box));
+    let median = Filter::Blur(Blur::new(5, BlurMode::Median));
 
     let mut start = Instant::now();
     gaussian.apply(&img).save("gaussian.png");
@@ -133,12 +62,3 @@ fn show_img(img: &Array3<u8>) {
     wind.show();
     app.run().unwrap();
 }
-
-// fn get_patch(img: &Array3<u8>, x: i32, y: i32, r: i32) -> Array3<u8> {
-//     let patch = Array3::<u8>::zeros((r as usize * 2 + 1, r as usize * 2 + 1, 3));
-//     // iterujac po pixelach w patch
-//     // wyciagamy pixel z img jako Option(pxl)
-//     // Some(pxl) => patch[i][j] = pxl
-//     // None => patch[i][j] = 0 || img[x][y]
-//     patch
-// }

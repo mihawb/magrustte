@@ -7,10 +7,10 @@ pub struct Lighting {
 }
 
 impl Lighting {
-    pub fn new(brightness: f64, contrast: f64) -> Self {
+    pub fn new(brightness: i32, contrast: i32) -> Self {
         Self {
-            brightness: brightness.max(-1.0).min(1.0) * 255.0,
-            contrast: contrast.max(-1.0).min(1.0) * 255.0,
+            brightness: brightness.max(-255).min(255) as f64,
+            contrast: contrast.max(-255).min(255) as f64,
         }
     }
 }

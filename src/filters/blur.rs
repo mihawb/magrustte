@@ -17,11 +17,11 @@ pub enum Mode {
 }
 
 impl Blur {
-    pub fn new(radius: f64, mode: Mode) -> Self {
+    pub fn new(radius: i32, mode: Mode) -> Self {
         Self {
-            radius: (radius.max(-1.0).min(1.0) * 5.0 + 5.0) as i32,
-            diameter: (radius.max(-1.0).min(1.0) * 5.0 + 5.0) as i32 * 2 + 1,
-            sigma: (radius.max(-1.0).min(1.0) * 2.5 + 2.5).max(1.0),
+            radius: radius.max(0).min(50),
+            diameter: radius.max(0).min(50) * 2 + 1,
+            sigma: ((radius.max(0).min(50) as f64) / 2.0).max(1.0),
             mode,
         }
     }

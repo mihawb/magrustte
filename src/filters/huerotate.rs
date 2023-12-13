@@ -7,8 +7,8 @@ pub struct Huerotate {
 }
 
 impl Huerotate {
-    pub fn new(deg: f64) -> Self {
-        Self { deg: deg.max(-1.0).min(1.0) * 360.0 }
+    pub fn new(deg: i32) -> Self {
+        Self { deg: deg as f64 }
     }
 }
 

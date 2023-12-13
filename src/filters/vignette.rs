@@ -10,10 +10,10 @@ pub struct Vignette {
 }
 
 impl Vignette {
-    pub fn new(radius: f64, opacity: f64) -> Self {
+    pub fn new(radius: i32, opacity: i32) -> Self {
         Self {
-            radius: radius.max(-1.0).min(1.0) * 0.5 + 0.5,
-            opacity: opacity.max(-1.0).min(1.0) * 0.5 + 0.5
+            radius: radius.max(0).min(100) as f64 / 100.0,
+            opacity: opacity.max(0).min(100) as f64 / 100.0,
         }
     }
 }
