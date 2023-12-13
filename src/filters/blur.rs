@@ -1,0 +1,99 @@
+use crate::filters::Manipulate;
+use ndarray::{Array2, Array3, stack, Axis};
+use crate::imgarray::AsImage;
+use crate::linalg::{gaussian_kernel, outer_product, median};
+
+pub struct Blur {
+    radius: i32,
+    diameter: i32,
+    sigma: f64,
+    mode: Mode,
+}
+
+pub enum Mode {
+    Gaussian,
+    Box,
+    Median,
+}
+
+impl Blur {
+    pub fn new(radius: f64, mode: Mode) -> Self {
+        Self {
+            radius: (radius.max(-1.0).min(1.0) * 5.0 + 5.0) as i32,
+            diameter: (radius.max(-1.0).min(1.0) * 5.0 + 5.0) as i32 * 2 + 1,
+            sigma: (radius.max(-1.0).min(1.0) * 2.5 + 2.5).max(1.0),
+            mode,
+        }
+    }
+
+    fn base_blur_channel(channel: &Array2<f64>, kernel: &Array2<f64>, radius: i32) -> Array2<f64> {
+        let (width, height) = channel.dim();
+        let mut res = Array2::<f64>::zeros((width, height));
+
+        for x in 0..width as i32{
+            for y in 0..height as i32 {
+                let mut new_val = 0.0;
+
+                for i in -radius..radius {
+                    for j in -radius..radius {
+                        // capping the values to the image boundaries so as to not make the edges dimmer
+                        let x_ = (x + i).max(0).min(width as i32 - 1);
+                        let y_ = (y + j).max(0).min(height as i32 - 1);
+
+                        new_val += channel[[x_ as usize, y_ as usize]] * kernel[[(radius + i) as usize, (radius + j) as usize]];
+                    }
+                }
+                res[[x as usize, y as usize]] = new_val
+            }
+        }
+        res
+    }
+
+    fn median_blur_channel(channel: &Array2<f64>, kernel: &Array2<f64>, radius: i32) -> Array2<f64> {
+        let (width, height) = channel.dim();
+        let mut res = Array2::<f64>::zeros((width, height));
+
+        for x in 0..width as i32{
+            for y in 0..height as i32 {
+                let mut vals = Vec::<f64>::new();
+
+                for i in -radius..radius {
+                    for j in -radius..radius {
+                        let x_ = (x + i).max(0).min(width as i32 - 1);
+                        let y_ = (y + j).max(0).min(height as i32 - 1);
+
+                        vals.push(channel[[x_ as usize, y_ as usize]]);
+                    }
+                }
+                res[[x as usize, y as usize]] = median(&mut vals);
+            }
+        }
+        res
+    }
+}
+
+impl Manipulate for Blur {
+    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+        let (rc , gc, bc) = img.rgb_as_float();
+        let kernel = match self.mode {
+            Mode::Gaussian => outer_product(
+                &gaussian_kernel(self.diameter, self.sigma),
+                &gaussian_kernel(self.diameter, self.sigma),
+            ),
+            Mode::Box => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)) / (self.diameter * self.diameter) as f64,
+            Mode::Median => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)),
+        };
+
+        let blur_fn = match self.mode {
+            Mode::Gaussian => Self::base_blur_channel,
+            Mode::Box => Self::base_blur_channel,
+            Mode::Median => Self::median_blur_channel,
+        };
+
+        stack(Axis(2), &[
+            blur_fn(&rc, &kernel, self.radius).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
+            blur_fn(&gc, &kernel, self.radius).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
+            blur_fn(&bc, &kernel, self.radius).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
+        ]).unwrap()
+    }
+}
