@@ -12,4 +12,8 @@ impl Manipulate for Invert {
     fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
         255 - img
     }
+
+    fn details_str(&self) -> String {
+        "Color invert".to_string()
+    }
 }

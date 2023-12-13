@@ -22,4 +22,8 @@ impl Manipulate for Threshold {
         let effect = luma.mapv(|x| if x as u8 > self.threshold { 255 } else { 0 });
         stack(Axis(2), &[effect.view(), effect.view(), effect.view()]).unwrap()
     }
+
+    fn details_str(&self) -> String {
+        format!("Threshold -> threshold: {}", self.threshold)
+    }
 }

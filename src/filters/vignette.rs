@@ -35,4 +35,8 @@ impl Manipulate for Vignette {
             (bc * &e).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
         ]).unwrap()
     }
+
+    fn details_str(&self) -> String {
+        format!("Vignette -> radius: {}%, opacity: {}%", self.radius * 100.0, self.opacity * 100.0)
+    }
 }

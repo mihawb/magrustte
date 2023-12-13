@@ -10,6 +10,7 @@ pub struct Blur {
     mode: Mode,
 }
 
+#[derive(Debug)]
 pub enum Mode {
     Gaussian,
     Box,
@@ -95,5 +96,9 @@ impl Manipulate for Blur {
             blur_fn(&gc, &kernel, self.radius).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
             blur_fn(&bc, &kernel, self.radius).mapv(|x| x.min(255.0).max(0.0) as u8).view(),
         ]).unwrap()
+    }
+
+    fn details_str(&self) -> String {
+        format!("Blur -> radius: {}, mode: {:?}", self.radius, self.mode)
     }
 }

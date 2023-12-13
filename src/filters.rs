@@ -23,6 +23,7 @@ pub enum Filter {
 }
 pub trait Manipulate {
     fn apply(&self, img: &Array3<u8>) -> Array3<u8>;
+    fn details_str(&self) -> String;
 }
 
 impl Manipulate for Filter {
@@ -36,6 +37,19 @@ impl Manipulate for Filter {
             Filter::Lighting(lighting) => lighting.apply(img),
             Filter::Vignette(vignette) => vignette.apply(img),
             Filter::Blur(blur) => blur.apply(img),
+        }
+    }
+
+    fn details_str(&self) -> String {
+        match self {
+            Filter::Threshold(threshold) => threshold.details_str(),
+            Filter::Invert(invert) => invert.details_str(),
+            Filter::Compose(compose) => compose.details_str(),
+            Filter::Grayscale(grayscale) => grayscale.details_str(),
+            Filter::Huerotate(huerotate) => huerotate.details_str(),
+            Filter::Lighting(lighting) => lighting.details_str(),
+            Filter::Vignette(vignette) => vignette.details_str(),
+            Filter::Blur(blur) => blur.details_str(),
         }
     }
 }

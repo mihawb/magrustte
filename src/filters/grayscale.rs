@@ -19,4 +19,8 @@ impl Manipulate for Grayscale {
         let res_chan = luma.mapv(|x| x as u8);
         stack(Axis(2), &[res_chan.view(), res_chan.view(), res_chan.view()]).unwrap()
     }
+
+    fn details_str(&self) -> String {
+        "Grayscale".to_string()
+    }
 }

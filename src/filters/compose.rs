@@ -23,4 +23,13 @@ impl Manipulate for Compose {
         });
         res
     }
+
+    fn details_str(&self) -> String {
+        self.filters
+            .iter()
+            .enumerate()
+            .map(|(i, filter)| format!("{} {}", i, filter.details_str()))
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
 }
