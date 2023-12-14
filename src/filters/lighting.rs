@@ -1,5 +1,5 @@
-use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::Array3;
+use crate::filters::{CommandParse, Filter, Manipulate};
 
 pub struct Lighting {
     brightness: f64,

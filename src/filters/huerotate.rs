@@ -1,5 +1,5 @@
-use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array3, Axis, stack};
+use crate::filters::{CommandParse, Filter, Manipulate};
 use crate::imgarray::AsImage;
 
 pub struct Huerotate {

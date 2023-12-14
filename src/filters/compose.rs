@@ -1,5 +1,5 @@
-use crate::filters::{Filter, Manipulate};
 use ndarray::Array3;
+use crate::filters::{Filter, Manipulate};
 
 #[derive(Default)]
 pub struct Compose {

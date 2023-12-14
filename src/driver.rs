@@ -15,6 +15,7 @@ use crate::filters::lighting::Lighting;
 use crate::filters::vignette::Vignette;
 use crate::filters::blur::Blur;
 use crate::filters::compose::Compose;
+use crate::filters::sepia::Sepia;
 
 pub struct Context {
     pub path: PathBuf,
@@ -164,6 +165,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
             println!("exit - exit program");
             println!("help - show this message");
             println!("\nAvailable filters:");
+            println!("sepia");
             println!("invert");
             println!("grayscale");
             println!("threshold <value>");
@@ -191,6 +193,10 @@ fn handle_file_dialog() -> Result<PathBuf, Box<dyn std::error::Error>> {
 
 fn handle_add(ctx: &mut Context, command: Vec<String>) {
     match command[0].as_ref() {
+        "sepia" => {
+            ctx.filters_composed.add(Filter::Sepia(Sepia::new()));
+            println!("Sepia filter added.");
+        },
         "invert" => {
             ctx.filters_composed.add(Filter::Invert(Invert::new()));
             println!("Invert filter added.");

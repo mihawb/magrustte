@@ -1,5 +1,5 @@
-use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array3, stack, Axis};
+use crate::filters::{CommandParse, Filter, Manipulate};
 use crate::imgarray::AsImage;
 
 pub struct Threshold {

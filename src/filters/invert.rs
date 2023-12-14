@@ -1,5 +1,5 @@
-use crate::filters::Manipulate;
 use ndarray::Array3;
+use crate::filters::Manipulate;
 
 #[derive(Default)]
 pub struct Invert;

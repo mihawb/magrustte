@@ -6,6 +6,7 @@ pub mod huerotate;
 pub mod lighting;
 pub mod vignette;
 pub mod blur;
+pub(crate) mod sepia;
 
 use ndarray::Array3;
 
@@ -18,6 +19,7 @@ pub enum Filter {
     Lighting(lighting::Lighting),
     Vignette(vignette::Vignette),
     Blur(blur::Blur),
+    Sepia(sepia::Sepia),
 }
 pub trait Manipulate {
     fn apply(&mut self, img: &Array3<u8>) -> Array3<u8>;
@@ -35,6 +37,7 @@ impl Manipulate for Filter {
             Filter::Lighting(lighting) => lighting.apply(img),
             Filter::Vignette(vignette) => vignette.apply(img),
             Filter::Blur(blur) => blur.apply(img),
+            Filter::Sepia(sepia) => sepia.apply(img),
         }
     }
 
@@ -48,6 +51,7 @@ impl Manipulate for Filter {
             Filter::Lighting(lighting) => lighting.details_str(),
             Filter::Vignette(vignette) => vignette.details_str(),
             Filter::Blur(blur) => blur.details_str(),
+            Filter::Sepia(sepia) => sepia.details_str(),
         }
     }
 }

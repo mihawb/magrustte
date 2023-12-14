@@ -36,9 +36,9 @@ impl AsImage for Array3<u8> {
 
     fn rgb_as_float(&self) -> (Array2<f64>, Array2<f64>, Array2<f64>) {
         (
-            self.slice(s![..,..,0]).to_owned().map(|x| *x as f64),
-            self.slice(s![..,..,1]).to_owned().map(|x| *x as f64),
-            self.slice(s![..,..,2]).to_owned().map(|x| *x as f64),
+            self.slice(s![..,..,0]).to_owned().mapv(|x| x as f64),
+            self.slice(s![..,..,1]).to_owned().mapv(|x| x as f64),
+            self.slice(s![..,..,2]).to_owned().mapv(|x| x as f64),
         )
     }
 

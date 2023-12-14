@@ -1,5 +1,5 @@
-use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array2, Array3, stack, Axis};
+use crate::filters::{CommandParse, Filter, Manipulate};
 use crate::imgarray::AsImage;
 use crate::linalg::{gaussian_kernel, outer_product, median};
 
