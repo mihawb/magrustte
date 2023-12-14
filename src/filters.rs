@@ -22,12 +22,12 @@ pub enum Filter {
     Blur(blur::Blur),
 }
 pub trait Manipulate {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8>;
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8>;
     fn details_str(&self) -> String;
 }
 
 impl Manipulate for Filter {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         match self {
             Filter::Threshold(threshold) => threshold.apply(img),
             Filter::Invert(invert) => invert.apply(img),

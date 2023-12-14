@@ -16,7 +16,7 @@ impl Lighting {
 }
 
 impl Manipulate for Lighting {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         // on brightness https://math.stackexchange.com/a/906280
         // on contrast https://www.dfstudios.co.uk/articles/programming/image-programming-algorithms/image-processing-algorithms-part-5-contrast-adjustment/
         let f = 259.0 * (self.contrast + 255.0) / (255.0 * (259.0 - self.contrast));

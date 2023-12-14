@@ -13,7 +13,7 @@ impl Threshold {
 }
 
 impl Manipulate for Threshold {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         let (r, g, b) = img.split_channels();
         let r_f = r.mapv(|x| x as f64);
         let g_f = g.mapv(|x| x as f64);

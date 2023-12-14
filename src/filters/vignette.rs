@@ -19,7 +19,7 @@ impl Vignette {
 }
 
 impl Manipulate for Vignette {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         let (rc , gc, bc) = img.rgb_as_float();
 
         let (width, height, _) = img.dim();

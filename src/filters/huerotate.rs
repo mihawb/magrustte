@@ -13,7 +13,7 @@ impl Huerotate {
 }
 
 impl Manipulate for Huerotate {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         let sin_deg = self.deg.to_radians().sin();
         let cos_deg = self.deg.to_radians().cos();
         let (r, g, b) = AsImage::rgb_as_float(img);

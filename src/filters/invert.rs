@@ -9,7 +9,7 @@ impl Invert {
 }
 
 impl Manipulate for Invert {
-    fn apply(&self, img: &Array3<u8>) -> Array3<u8> {
+    fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         255 - img
     }
 
