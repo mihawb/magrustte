@@ -1,6 +1,7 @@
-use crate::filters::Manipulate;
+use std::num::ParseIntError;
 use ndarray::{Array3, stack, Axis};
 use ndarray_stats::QuantileExt;
+use crate::filters::{Manipulate, CommandParse, Filter};
 use crate::imgarray::AsImage;
 use crate::linalg::{gaussian_kernel, outer_product};
 
@@ -38,5 +39,21 @@ impl Manipulate for Vignette {
 
     fn details_str(&self) -> String {
         format!("Vignette -> radius: {}%, opacity: {}%", self.radius * 100.0, self.opacity * 100.0)
+    }
+}
+
+impl CommandParse for Vignette {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>> {
+        let maybe_radius = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let maybe_opacity = match command.get(1) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let radius = maybe_radius.parse::<i32>()?;
+        let opacity = maybe_opacity.parse::<i32>()?;
+        Ok(Filter::Vignette(Vignette::new(radius, opacity)))
     }
 }

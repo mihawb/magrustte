@@ -9,8 +9,6 @@ pub mod blur;
 
 use ndarray::Array3;
 
-// ZALOZENIA
-// 1. wszystkie parametry sa typu f64 i zawieraja sie w przedziale [-1.0, 1.0]
 pub enum Filter {
     Threshold(threshold::Threshold),
     Invert(invert::Invert),
@@ -52,4 +50,8 @@ impl Manipulate for Filter {
             Filter::Blur(blur) => blur.details_str(),
         }
     }
+}
+
+pub trait CommandParse {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>>;
 }

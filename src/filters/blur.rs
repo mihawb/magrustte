@@ -1,4 +1,5 @@
-use crate::filters::Manipulate;
+use std::num::ParseIntError;
+use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array2, Array3, stack, Axis};
 use crate::imgarray::AsImage;
 use crate::linalg::{gaussian_kernel, outer_product, median};
@@ -15,6 +16,19 @@ pub enum Mode {
     Gaussian,
     Box,
     Median,
+}
+
+impl std::str::FromStr for Mode {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "gaussian" => Ok(Mode::Gaussian),
+            "box" => Ok(Mode::Box),
+            "median" => Ok(Mode::Median),
+            _ => Err(format!("{} is not a valid blur mode", s)),
+        }
+    }
 }
 
 impl Blur {
@@ -100,5 +114,21 @@ impl Manipulate for Blur {
 
     fn details_str(&self) -> String {
         format!("Blur -> radius: {}, mode: {:?}", self.radius, self.mode)
+    }
+}
+
+impl CommandParse for Blur {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>> {
+        let maybe_radius = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let maybe_mode = match command.get(1) {
+            Some(s) => s,
+            None => "nam",
+        };
+        let radius = maybe_radius.parse::<i32>()?;
+        let mode = maybe_mode.parse::<Mode>()?;
+        Ok(Filter::Blur(Blur::new(radius, mode)))
     }
 }

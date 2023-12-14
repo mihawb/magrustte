@@ -41,11 +41,15 @@ impl Manipulate for Compose {
     }
 
     fn details_str(&self) -> String {
-        self.filters
+        let details = self.filters
             .iter()
             .enumerate()
             .map(|(i, filter)| format!("{} {}", i, filter.details_str()))
             .collect::<Vec<String>>()
-            .join("\n")
+            .join("\n");
+        match details.len() {
+            0 => "No filters applied yet.".to_string(),
+            _ => details,
+        }
     }
 }
