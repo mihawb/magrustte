@@ -11,7 +11,7 @@ pub struct Blur {
 }
 
 #[derive(Debug)]
-pub enum Mode {
+enum Mode {
     Gaussian,
     Box,
     Median,
@@ -31,7 +31,7 @@ impl std::str::FromStr for Mode {
 }
 
 impl Blur {
-    pub fn new(radius: i32, mode: Mode) -> Self {
+    fn new(radius: i32, mode: Mode) -> Self {
         Self {
             radius: radius.max(0).min(50),
             diameter: radius.max(0).min(50) * 2 + 1,
