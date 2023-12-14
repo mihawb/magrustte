@@ -1,6 +1,7 @@
 use crate::filters::{Filter, Manipulate};
 use ndarray::Array3;
 
+#[derive(Default)]
 pub struct Compose {
     filters: Vec<Filter>,
     pub rerender_index: usize,

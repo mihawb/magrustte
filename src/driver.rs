@@ -25,6 +25,30 @@ pub struct Context {
     pub is_running: bool,
 }
 
+impl Context {
+    pub fn clear(&mut self) {
+        self.path = PathBuf::from("");
+        self.init_img = Array3::<u8>::zeros((1, 1, 3));
+        self.res_img = Array3::<u8>::zeros((1, 1, 3));
+        self.is_img_open = false;
+        self.filters_composed = Compose::new(vec![]);
+        self.is_running = true;
+    }
+}
+
+impl Default for Context {
+    fn default() -> Self {
+        Self {
+            path: PathBuf::from(""),
+            init_img: Array3::<u8>::zeros((1, 1, 3)),
+            res_img: Array3::<u8>::zeros((1, 1, 3)),
+            is_img_open: false,
+            filters_composed: Compose::new(vec![]),
+            is_running: true,
+        }
+    }
+}
+
 pub fn get_user_input() -> Vec<String> {
     let mut input = String::new();
     print!("> ");
@@ -38,30 +62,23 @@ pub fn get_user_input() -> Vec<String> {
 
 pub fn driver(ctx: &mut Context, command: Vec<String>) {
     match command[0].as_ref() {
-        "open-debug" => {
-            if ctx.is_img_open {
-                println!("Image already loaded, close it first by typing 'close'.");
-            } else {
-                ctx.path = PathBuf::from("pic.jpg");
-                ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
-                ctx.is_img_open = true;
-            }
-            println!("Image loaded.");
-        },
         "open" => {
             if ctx.is_img_open {
                 println!("Image already loaded, close it first by typing 'close'.");
+            }
+            ctx.path = if command.len() > 1 {
+                PathBuf::from(command[1].as_str())
             } else {
-                ctx.path = match handle_file_dialog() {
+                match handle_file_dialog() {
                     Ok(path) => path,
                     Err(e) => {
                         println!("{}", e);
                         return;
                     },
-                };
-                ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
-                ctx.is_img_open = true;
-            }
+                }
+            };
+            ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
+            ctx.is_img_open = true;
             println!("Image loaded.");
         }
         "add" => {
@@ -111,9 +128,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
         },
         "close" => {
             if ctx.is_img_open {
-                ctx.init_img = Array3::<u8>::zeros((1, 1, 3));
-                ctx.res_img = Array3::<u8>::zeros((1, 1, 3));
-                ctx.is_img_open = false;
+                ctx.clear();
                 println!("Image closed.");
             } else {
                 println!("No image loaded.");
@@ -145,7 +160,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
             println!("list - list all filters");
             println!("show - show image");
             println!("close - close image");
-            println!("save <filename|none> - save image");
+            println!("save <filename> - save image");
             println!("exit - exit program");
             println!("help - show this message");
             println!("\nAvailable filters:");
@@ -230,7 +245,7 @@ fn render_image(ctx: &mut Context) {
     match ctx.filters_composed.rerender_index {
         0 => ctx.res_img = ctx.filters_composed.apply(&ctx.init_img),
         _ => ctx.res_img = ctx.filters_composed.apply(&ctx.res_img),
-    }
+    };
 }
 
 fn show_img(img: &Array3<u8>) {

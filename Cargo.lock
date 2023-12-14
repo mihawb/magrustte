@@ -409,17 +409,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image_test"
-version = "0.1.0"
-dependencies = [
- "fltk",
- "image",
- "native-dialog",
- "ndarray",
- "ndarray-stats",
-]
-
-[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -482,6 +471,17 @@ checksum = "3c168f8615b12bc01f9c17e2eb0cc07dcae1940121185446edc3744920e8ef45"
 dependencies = [
  "autocfg",
  "scopeguard",
+]
+
+[[package]]
+name = "magrustte"
+version = "0.1.0"
+dependencies = [
+ "fltk",
+ "image",
+ "native-dialog",
+ "ndarray",
+ "ndarray-stats",
 ]
 
 [[package]]
