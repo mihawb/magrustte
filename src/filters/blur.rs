@@ -1,4 +1,3 @@
-use std::num::ParseIntError;
 use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array2, Array3, stack, Axis};
 use crate::imgarray::AsImage;
@@ -64,7 +63,7 @@ impl Blur {
         res
     }
 
-    fn median_blur_channel(channel: &Array2<f64>, kernel: &Array2<f64>, radius: i32) -> Array2<f64> {
+    fn median_blur_channel(channel: &Array2<f64>, _kernel: &Array2<f64>, radius: i32) -> Array2<f64> {
         let (width, height) = channel.dim();
         let mut res = Array2::<f64>::zeros((width, height));
 

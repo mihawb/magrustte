@@ -1,4 +1,4 @@
-use crate::filters::Manipulate;
+use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::Array3;
 
 pub struct Lighting {
@@ -29,5 +29,21 @@ impl Manipulate for Lighting {
 
     fn details_str(&self) -> String {
         format!("Lighting -> brightness: {}, contrast: {}", self.brightness, self.contrast)
+    }
+}
+
+impl CommandParse for Lighting {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>> {
+        let maybe_brightness = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let maybe_contrast = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let brightness = maybe_brightness.parse::<i32>()?;
+        let contrast = maybe_contrast.parse::<i32>()?;
+        Ok(Filter::Lighting(Lighting::new(brightness, contrast)))
     }
 }

@@ -1,4 +1,4 @@
-use crate::filters::Manipulate;
+use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array3, stack, Axis};
 use crate::imgarray::AsImage;
 
@@ -25,5 +25,16 @@ impl Manipulate for Threshold {
 
     fn details_str(&self) -> String {
         format!("Threshold -> threshold: {}", self.threshold)
+    }
+}
+
+impl CommandParse for Threshold {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>> {
+        let maybe_threshold = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let threshold = maybe_threshold.parse::<i32>()?;
+        Ok(Filter::Threshold(Threshold::new(threshold)))
     }
 }

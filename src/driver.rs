@@ -1,7 +1,8 @@
 use std::io::{stdin,stdout,Write};
+use std::path::{PathBuf, Path};
 use ndarray::Array3;
 use fltk::{app::App, frame::Frame, window::Window, image::RgbImage, enums::ColorDepth, prelude::*};
-// use native_dialog::FileDialog;
+use native_dialog::FileDialog;
 
 use crate::imgarray::AsImage;
 use crate::filters::{Filter, Manipulate, CommandParse};
@@ -12,11 +13,11 @@ use crate::filters::grayscale::Grayscale;
 use crate::filters::huerotate::Huerotate;
 use crate::filters::lighting::Lighting;
 use crate::filters::vignette::Vignette;
-use crate::filters::blur::{Blur, Mode as BlurMode};
+use crate::filters::blur::Blur;
 use crate::filters::compose::Compose;
 
 pub struct Context {
-    pub path: &'static str,
+    pub path: PathBuf,
     pub init_img: Array3<u8>,
     pub res_img: Array3<u8>,
     pub is_img_open: bool,
@@ -39,14 +40,30 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
     match command[0].as_ref() {
         "open-debug" => {
             if ctx.is_img_open {
-                println!("Image already loaded. Type 'reset' to close it.");
+                println!("Image already loaded, close it first by typing 'close'.");
             } else {
-                ctx.path = "pic.jpg";
-                ctx.init_img = AsImage::read(ctx.path);
+                ctx.path = PathBuf::from("pic.jpg");
+                ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
                 ctx.is_img_open = true;
             }
             println!("Image loaded.");
         },
+        "open" => {
+            if ctx.is_img_open {
+                println!("Image already loaded, close it first by typing 'close'.");
+            } else {
+                ctx.path = match handle_file_dialog() {
+                    Ok(path) => path,
+                    Err(e) => {
+                        println!("{}", e);
+                        return;
+                    },
+                };
+                ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
+                ctx.is_img_open = true;
+            }
+            println!("Image loaded.");
+        }
         "add" => {
             if command.len() < 2 {
                 println!("Wrong number of arguments. Type 'help' to see available commands.");
@@ -86,13 +103,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
         },
         "show" => {
             if ctx.is_img_open {
-                println!("Rendering image...");
-                // no-op equivalent if no new filters were added
-                // will apply only the filters that were added since last show
-                match ctx.filters_composed.rerender_index {
-                    0 => ctx.res_img = ctx.filters_composed.apply(&ctx.init_img),
-                    _ => ctx.res_img = ctx.filters_composed.apply(&ctx.res_img),
-                }
+                render_image(ctx);
                 show_img(&ctx.res_img);
             } else {
                 println!("No image loaded.");
@@ -108,31 +119,59 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
                 println!("No image loaded.");
             }
         },
+        "save" => {
+            if !ctx.is_img_open {
+                println!("No image loaded.");
+                return;
+            }
+            if command.len() < 2 {
+                println!("Wrong number of arguments. Type 'help' to see available commands.");
+                return;
+            }
+            render_image(ctx);
+            let dest = Path::join(ctx.path.parent().unwrap(), command[1].as_str())
+                .into_os_string().to_str().unwrap().to_string();
+            ctx.res_img.save(&dest);
+            println!("Image saved at {}.", dest);
+        },
         "exit" => {
             ctx.is_running = false;
         },
         "help" => {
             println!("Available commands:");
-            println!("X open - open image");
-            println!("X add <filter> <*params> - add filter to image");
+            println!("open - open image");
+            println!("add <filter> <*params> - add filter to image");
             println!("remove <index> - remove filter from image by index");
             println!("list - list all filters");
             println!("show - show image");
             println!("close - close image");
-            println!("X save - save image");
+            println!("save <filename|none> - save image");
             println!("exit - exit program");
             println!("help - show this message");
             println!("\nAvailable filters:");
-            println!("threshold <value>");
             println!("invert");
             println!("grayscale");
+            println!("threshold <value>");
+            println!("vignette <radius>");
             println!("huerotate <degrees>");
             println!("lighting <brightness> <contrast>");
-            println!("vignette <radius>");
             println!("blur <radius> <gaussian/box/median>");
         },
         _ => println!("Unknown command. Type 'help' to see available commands."),
     }
+}
+
+fn handle_file_dialog() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    match FileDialog::new()
+        .set_location("~")
+        .add_filter("Image (png, jpg)", &["png", "jpg", "jpeg"])
+        .show_open_single_file() {
+            Ok(op) => match op {
+                Some(p) => Ok(p),
+                None => Err(Box::try_from("No file was chosen".to_string()).unwrap()),
+            },
+            Err(e) => Err(Box::try_from(e.to_string()).unwrap()),
+        }
 }
 
 fn handle_add(ctx: &mut Context, command: Vec<String>) {
@@ -145,10 +184,31 @@ fn handle_add(ctx: &mut Context, command: Vec<String>) {
             ctx.filters_composed.add(Filter::Grayscale(Grayscale::new()));
             println!("Grayscale filter added.");
         },
+        "threshold" => match Threshold::parse(command[1..].to_vec()) {
+            Ok(filter) => {
+                ctx.filters_composed.add(filter);
+                println!("Threshold filter added.");
+            },
+            Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
+        },
         "vignette" => match Vignette::parse(command[1..].to_vec()) {
             Ok(filter) => {
                 ctx.filters_composed.add(filter);
                 println!("Vignette filter added.");
+            },
+            Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
+        },
+        "huerotate" => match Huerotate::parse(command[1..].to_vec()) {
+            Ok(filter) => {
+                ctx.filters_composed.add(filter);
+                println!("Huerotate filter added.");
+            },
+            Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
+        },
+        "lighting" => match Lighting::parse(command[1..].to_vec()) {
+            Ok(filter) => {
+                ctx.filters_composed.add(filter);
+                println!("Lighting filter added.");
             },
             Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
         },
@@ -160,6 +220,16 @@ fn handle_add(ctx: &mut Context, command: Vec<String>) {
             Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
         },
         _ => println!("Unknown filter. Type 'help' to see available filters."),
+    }
+}
+
+fn render_image(ctx: &mut Context) {
+    println!("Rendering image...");
+    // no-op equivalent if no new filters were added
+    // will apply only the filters that were added since last show
+    match ctx.filters_composed.rerender_index {
+        0 => ctx.res_img = ctx.filters_composed.apply(&ctx.init_img),
+        _ => ctx.res_img = ctx.filters_composed.apply(&ctx.res_img),
     }
 }
 

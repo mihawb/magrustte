@@ -1,4 +1,4 @@
-use crate::filters::Manipulate;
+use crate::filters::{CommandParse, Filter, Manipulate};
 use ndarray::{Array3, Axis, stack};
 use crate::imgarray::AsImage;
 
@@ -38,5 +38,16 @@ impl Manipulate for Huerotate {
 
     fn details_str(&self) -> String {
         format!("Huerotate -> degrees: {}", self.deg)
+    }
+}
+
+impl CommandParse for Huerotate {
+    fn parse(command: Vec<String>) -> Result<Filter, Box<dyn std::error::Error>> {
+        let maybe_deg = match command.get(0) {
+            Some(s) => s,
+            None => "nan",
+        };
+        let deg = maybe_deg.parse::<i32>()?;
+        Ok(Filter::Huerotate(Huerotate::new(deg)))
     }
 }
