@@ -7,15 +7,16 @@ use native_dialog::FileDialog;
 use crate::imgarray::AsImage;
 use crate::filters::{Filter, Manipulate, CommandParse};
 
-use crate::filters::threshold::Threshold;
+use crate::filters::sepia::Sepia;
 use crate::filters::invert::Invert;
 use crate::filters::grayscale::Grayscale;
-use crate::filters::huerotate::Huerotate;
-use crate::filters::lighting::Lighting;
+use crate::filters::threshold::Threshold;
 use crate::filters::vignette::Vignette;
+use crate::filters::huerotate::Huerotate;
+use crate::filters::sharpen::Sharpen;
+use crate::filters::lighting::Lighting;
 use crate::filters::blur::Blur;
 use crate::filters::compose::Compose;
-use crate::filters::sepia::Sepia;
 
 pub struct Context {
     pub path: PathBuf,
@@ -171,6 +172,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
             println!("threshold <value>");
             println!("vignette <radius>");
             println!("huerotate <degrees>");
+            println!("sharpen <gaussian/box/median>");
             println!("lighting <brightness> <contrast>");
             println!("blur <radius> <gaussian/box/median>");
         },
@@ -192,6 +194,8 @@ fn handle_file_dialog() -> Result<PathBuf, Box<dyn std::error::Error>> {
 }
 
 fn handle_add(ctx: &mut Context, command: Vec<String>) {
+    // TODO: impl CommandParse for Filter to avoid TERRIBLE code duplication
+    // DRY code not feasible atm since dyn CommandParse structs would have to be passed as params
     match command[0].as_ref() {
         "sepia" => {
             ctx.filters_composed.add(Filter::Sepia(Sepia::new()));
@@ -223,6 +227,13 @@ fn handle_add(ctx: &mut Context, command: Vec<String>) {
             Ok(filter) => {
                 ctx.filters_composed.add(filter);
                 println!("Huerotate filter added.");
+            },
+            Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
+        },
+        "sharpen" => match Sharpen::parse(command[1..].to_vec()) {
+            Ok(filter) => {
+                ctx.filters_composed.add(filter);
+                println!("Sharpen filter added.");
             },
             Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
         },

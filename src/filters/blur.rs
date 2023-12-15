@@ -7,31 +7,31 @@ pub struct Blur {
     radius: i32,
     diameter: i32,
     sigma: f64,
-    mode: Mode,
+    mode: BlurMode,
 }
 
 #[derive(Debug)]
-enum Mode {
+pub enum BlurMode {
     Gaussian,
     Box,
     Median,
 }
 
-impl std::str::FromStr for Mode {
+impl std::str::FromStr for BlurMode {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "gaussian" => Ok(Mode::Gaussian),
-            "box" => Ok(Mode::Box),
-            "median" => Ok(Mode::Median),
+            "gaussian" => Ok(BlurMode::Gaussian),
+            "box" => Ok(BlurMode::Box),
+            "median" => Ok(BlurMode::Median),
             _ => Err(format!("{} is not a valid blur mode", s)),
         }
     }
 }
 
 impl Blur {
-    fn new(radius: i32, mode: Mode) -> Self {
+    pub fn new(radius: i32, mode: BlurMode) -> Self {
         Self {
             radius: radius.max(0).min(50),
             diameter: radius.max(0).min(50) * 2 + 1,
@@ -90,18 +90,18 @@ impl Manipulate for Blur {
     fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         let (rc , gc, bc) = img.rgb_as_float();
         let kernel = match self.mode {
-            Mode::Gaussian => outer_product(
+            BlurMode::Gaussian => outer_product(
                 &gaussian_kernel(self.diameter, self.sigma),
                 &gaussian_kernel(self.diameter, self.sigma),
             ),
-            Mode::Box => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)) / (self.diameter * self.diameter) as f64,
-            Mode::Median => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)),
+            BlurMode::Box => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)) / (self.diameter * self.diameter) as f64,
+            BlurMode::Median => Array2::<f64>::ones((self.diameter as usize, self.diameter as usize)),
         };
 
         let blur_fn = match self.mode {
-            Mode::Gaussian => Self::base_blur_channel,
-            Mode::Box => Self::base_blur_channel,
-            Mode::Median => Self::median_blur_channel,
+            BlurMode::Gaussian => Self::base_blur_channel,
+            BlurMode::Box => Self::base_blur_channel,
+            BlurMode::Median => Self::median_blur_channel,
         };
 
         stack(Axis(2), &[
@@ -127,7 +127,7 @@ impl CommandParse for Blur {
             None => "nam",
         };
         let radius = maybe_radius.parse::<i32>()?;
-        let mode = maybe_mode.parse::<Mode>()?;
+        let mode = maybe_mode.parse::<BlurMode>()?;
         Ok(Filter::Blur(Blur::new(radius, mode)))
     }
 }

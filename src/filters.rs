@@ -4,6 +4,7 @@ pub mod grayscale;
 pub mod threshold;
 pub mod vignette;
 pub mod huerotate;
+pub mod sharpen;
 pub mod lighting;
 pub mod blur;
 pub mod compose;
@@ -17,6 +18,7 @@ pub enum Filter {
     Threshold(threshold::Threshold),
     Vignette(vignette::Vignette),
     Huerotate(huerotate::Huerotate),
+    Sharpen(sharpen::Sharpen),
     Lighting(lighting::Lighting),
     Blur(blur::Blur),
     Compose(compose::Compose),
@@ -35,6 +37,7 @@ impl Manipulate for Filter {
             Filter::Threshold(threshold) => threshold.apply(img),
             Filter::Vignette(vignette) => vignette.apply(img),
             Filter::Huerotate(huerotate) => huerotate.apply(img),
+            Filter::Sharpen(sharpen) => sharpen.apply(img),
             Filter::Lighting(lighting) => lighting.apply(img),
             Filter::Blur(blur) => blur.apply(img),
             Filter::Compose(compose) => compose.apply(img),
@@ -49,6 +52,7 @@ impl Manipulate for Filter {
             Filter::Threshold(threshold) => threshold.details_str(),
             Filter::Vignette(vignette) => vignette.details_str(),
             Filter::Huerotate(huerotate) => huerotate.details_str(),
+            Filter::Sharpen(sharpen) => sharpen.details_str(),
             Filter::Lighting(lighting) => lighting.details_str(),
             Filter::Blur(blur) => blur.details_str(),
             Filter::Compose(compose) => compose.details_str(),
