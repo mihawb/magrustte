@@ -8,6 +8,7 @@ pub mod sharpen;
 pub mod lighting;
 pub mod blur;
 pub mod compose;
+pub mod bilateral;
 
 use ndarray::Array3;
 
@@ -21,6 +22,7 @@ pub enum Filter {
     Sharpen(sharpen::Sharpen),
     Lighting(lighting::Lighting),
     Blur(blur::Blur),
+    Bilateral(bilateral::Bilateral),
     Compose(compose::Compose),
 }
 pub trait Manipulate {
@@ -40,6 +42,7 @@ impl Manipulate for Filter {
             Filter::Sharpen(sharpen) => sharpen.apply(img),
             Filter::Lighting(lighting) => lighting.apply(img),
             Filter::Blur(blur) => blur.apply(img),
+            Filter::Bilateral(bilateral) => bilateral.apply(img),
             Filter::Compose(compose) => compose.apply(img),
         }
     }
@@ -55,6 +58,7 @@ impl Manipulate for Filter {
             Filter::Sharpen(sharpen) => sharpen.details_str(),
             Filter::Lighting(lighting) => lighting.details_str(),
             Filter::Blur(blur) => blur.details_str(),
+            Filter::Bilateral(bilateral) => bilateral.details_str(),
             Filter::Compose(compose) => compose.details_str(),
         }
     }

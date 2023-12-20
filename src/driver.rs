@@ -16,6 +16,7 @@ use crate::filters::huerotate::Huerotate;
 use crate::filters::sharpen::Sharpen;
 use crate::filters::lighting::Lighting;
 use crate::filters::blur::Blur;
+use crate::filters::bilateral::Bilateral;
 use crate::filters::compose::Compose;
 
 pub struct Context {
@@ -175,6 +176,7 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
             println!("sharpen <gaussian/box/median>");
             println!("lighting <brightness> <contrast>");
             println!("blur <radius> <gaussian/box/median>");
+            println!("bilateral <radius> <spatial sigma> <intensity sigma>");
         },
         _ => println!("Unknown command. Type 'help' to see available commands."),
     }
@@ -248,6 +250,13 @@ fn handle_add(ctx: &mut Context, command: Vec<String>) {
             Ok(filter) => {
                 ctx.filters_composed.add(filter);
                 println!("Blur filter added.");
+            },
+            Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
+        },
+        "bilateral" => match Bilateral::parse(command[1..].to_vec()) {
+            Ok(filter) => {
+                ctx.filters_composed.add(filter);
+                println!("Bilateral filter added.");
             },
             Err(_) => println!("Wrong arguments. Type 'help' to see available commands."),
         },

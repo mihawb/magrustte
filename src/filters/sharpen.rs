@@ -1,6 +1,5 @@
-use ndarray::{Array2, Array3, stack, Axis};
+use ndarray::Array3;
 use crate::filters::{CommandParse, Filter, Manipulate, blur::{Blur, BlurMode}};
-use crate::imgarray::AsImage;
 
 pub struct Sharpen {
     mode: SharpenMode,
