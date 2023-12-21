@@ -80,9 +80,15 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
                     },
                 }
             };
-            ctx.init_img = AsImage::read(ctx.path.clone().into_os_string().to_str().unwrap());
-            ctx.is_img_open = true;
-            println!("Image loaded.");
+            match Array3::read(ctx.path.clone().into_os_string().to_str().unwrap()) {
+                Ok(img) => {
+                    ctx.is_img_open = true;
+                    println!("Image loaded.");
+                    ctx.init_img = img;
+                }
+                Err(_) => println!("Unable to open image: {}", command[1].as_str()),
+            }
+
         }
         "add" => {
             if command.len() < 2 {
@@ -183,8 +189,9 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
 }
 
 fn handle_file_dialog() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let pwd = std::env::current_dir()?;
     match FileDialog::new()
-        .set_location("~")
+        .set_location(&pwd)
         .add_filter("Image (png, jpg)", &["png", "jpg", "jpeg"])
         .show_open_single_file() {
             Ok(op) => match op {

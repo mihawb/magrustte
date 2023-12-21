@@ -3,7 +3,7 @@ use image::{ImageBuffer, GenericImageView, Rgb, RgbImage};
 
 pub trait AsImage {
     fn save(&self, path: &str);
-    fn read(path: &str) -> Self;
+    fn read(path: &str) -> Result<Array3<u8>, Box<dyn std::error::Error>>;
     fn to_rgb_image(&self) -> RgbImage;
     fn rgb_as_float(&self) -> (Array2<f64>, Array2<f64>, Array2<f64>);
     fn split_channels(&self) -> (Array2<u8>, Array2<u8>, Array2<u8>);
@@ -14,8 +14,8 @@ impl AsImage for Array3<u8> {
         self.to_rgb_image().save(path).unwrap();
     }
 
-    fn read(path: &str) -> Self {
-        let img = image::open(path).unwrap(); // TODO: handle error
+    fn read(path: &str) -> Result<Array3<u8>, Box<dyn std::error::Error>> {
+        let img = image::open(path)?;
         let (width, height) = img.dimensions();
         let mut res = Array3::<u8>::zeros((width as usize, height as usize, 3));
         for (x, y, pixel) in img.pixels() {
@@ -23,7 +23,7 @@ impl AsImage for Array3<u8> {
             res[[x as usize, y as usize, 1]] = pixel[1];
             res[[x as usize, y as usize, 2]] = pixel[2];
         }
-        res
+        Ok(res)
     }
 
     fn to_rgb_image(&self) -> RgbImage {
