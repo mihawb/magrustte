@@ -38,7 +38,7 @@ impl CommandParse for Lighting {
             Some(s) => s,
             None => "nan",
         };
-        let maybe_contrast = match command.get(0) {
+        let maybe_contrast = match command.get(1) {
             Some(s) => s,
             None => "nan",
         };

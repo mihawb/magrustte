@@ -25,7 +25,7 @@ impl std::str::FromStr for SharpenMode {
             "box" => Ok(SharpenMode::Box),
             "median" => Ok(SharpenMode::Median),
             // "bilateral" => Ok(SharpenMode::Bilateral),
-            _ => Err(format!("{} is not a valid sharpen mode", s)),
+            _ => Err(format!("{} is not a valid sharpening mode", s)),
         }
     }
 }
