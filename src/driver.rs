@@ -88,8 +88,21 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
                 }
                 Err(_) => println!("Unable to open image: {}", command[1].as_str()),
             }
-
-        }
+        },
+        "open-debug" => {
+            if ctx.is_img_open {
+                println!("Image already loaded, close it first by typing 'close'.");
+            }
+            ctx.path = PathBuf::from("./przyklady/reze_noise.jpg");
+            match Array3::read(ctx.path.clone().into_os_string().to_str().unwrap()) {
+                Ok(img) => {
+                    ctx.is_img_open = true;
+                    println!("Image loaded.");
+                    ctx.init_img = img;
+                }
+                Err(_) => println!("Unable to open image: {}", command[1].as_str()),
+            }
+        },
         "add" => {
             if command.len() < 2 {
                 println!("Wrong number of arguments. Type 'help' to see available commands.");
@@ -179,10 +192,10 @@ pub fn driver(ctx: &mut Context, command: Vec<String>) {
             println!("threshold <value>");
             println!("vignette <radius>");
             println!("huerotate <degrees>");
-            println!("sharpen <gaussian/box/median>");
+            println!("sharpen <gaussian/box/median/bilateral> <radius> <render fine mask>");
             println!("lighting <brightness> <contrast>");
             println!("blur <radius> <gaussian/box/median>");
-            println!("bilateral <radius> <spatial sigma> <intensity sigma>");
+            println!("bilateral <radius> <spatial sigma> <color sigma>");
         },
         _ => println!("Unknown command. Type 'help' to see available commands."),
     }
@@ -205,6 +218,7 @@ fn handle_file_dialog() -> Result<PathBuf, Box<dyn std::error::Error>> {
 fn handle_add(ctx: &mut Context, command: Vec<String>) {
     // TODO: impl CommandParse for Filter to avoid TERRIBLE code duplication
     // DRY code not feasible atm since dyn CommandParse structs would have to be passed as params
+    // or maybe try a macro?????
     match command[0].as_ref() {
         "sepia" => {
             ctx.filters_composed.add(Filter::Sepia(Sepia::new()));

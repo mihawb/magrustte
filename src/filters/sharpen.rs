@@ -1,10 +1,10 @@
 use ndarray::Array3;
-use crate::filters::{CommandParse, Filter, Manipulate, blur::{Blur, BlurMode}};
+use crate::filters::{CommandParse, Filter, Manipulate, blur::{Blur, BlurMode}, bilateral::Bilateral};
 
 pub struct Sharpen {
     mode: SharpenMode,
-    render_fine_mask: bool,
     coarse_radius: i32,
+    render_fine_mask: bool,
 }
 
 #[derive(Debug)]
@@ -12,8 +12,7 @@ pub enum SharpenMode {
     Gaussian,
     Box,
     Median,
-    // Bilateral,
-    // TODO: implement bilateral sharpening mask
+    Bilateral,
 }
 
 impl std::str::FromStr for SharpenMode {
@@ -24,27 +23,28 @@ impl std::str::FromStr for SharpenMode {
             "gaussian" => Ok(SharpenMode::Gaussian),
             "box" => Ok(SharpenMode::Box),
             "median" => Ok(SharpenMode::Median),
-            // "bilateral" => Ok(SharpenMode::Bilateral),
+            "bilateral" => Ok(SharpenMode::Bilateral),
             _ => Err(format!("{} is not a valid sharpening mode", s)),
         }
     }
 }
 
 impl Sharpen {
-    pub fn new(mode: SharpenMode, render_fine_mask: bool, coarse_radius: i32) -> Self {
+    pub fn new(mode: SharpenMode, coarse_radius: i32, render_fine_mask: bool) -> Self {
         // TODO: idk if all those params have to be user defined
-        Self { mode, render_fine_mask, coarse_radius, }
+        Self { mode, coarse_radius, render_fine_mask }
     }
 }
 
-// on sharpening in general: https://web.stanford.edu/class/cs448f/lectures/2.1/Sharpening.pdf
-// on bilateral mask: TODO add link
+// on sharpening: https://web.stanford.edu/class/cs448f/lectures/2.1/Sharpening.pdf
 impl Manipulate for Sharpen {
     fn apply(&mut self, img: &Array3<u8>) -> Array3<u8> {
         let coarse = match self.mode {
             SharpenMode::Gaussian => Blur::new(self.coarse_radius, BlurMode::Gaussian).apply(img),
             SharpenMode::Box => Blur::new(self.coarse_radius, BlurMode::Box).apply(img),
             SharpenMode::Median => Blur::new(self.coarse_radius, BlurMode::Median).apply(img),
+            SharpenMode::Bilateral =>
+                Bilateral::new(self.coarse_radius, self.coarse_radius as f64, 0.05).apply(img),
         };
 
         // fine = img - coarse (mapped to i32 to avoid underflow)
@@ -69,17 +69,17 @@ impl CommandParse for Sharpen {
             Some(s) => s,
             None => "nam",
         };
-        let maybe_render_fine_mask = match command.get(1) {
-            Some(s) => s,
-            None => "nab",
-        };
-        let maybe_coarse_radius = match command.get(2) {
+        let maybe_coarse_radius = match command.get(1) {
             Some(s) => s,
             None => "nan",
         };
+        let maybe_render_fine_mask = match command.get(2) {
+            Some(s) => s,
+            None => "nab",
+        };
         let mode = maybe_mode.parse::<SharpenMode>()?;
-        let render_fine_mask = maybe_render_fine_mask.parse::<bool>()?;
         let coarse_radius = maybe_coarse_radius.parse::<i32>()?;
-        Ok(Filter::Sharpen(Sharpen::new(mode, render_fine_mask, coarse_radius)))
+        let render_fine_mask = maybe_render_fine_mask.parse::<bool>()?;
+        Ok(Filter::Sharpen(Sharpen::new(mode, coarse_radius, render_fine_mask)))
     }
 }
