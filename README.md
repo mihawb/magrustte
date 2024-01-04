@@ -6,7 +6,7 @@ Name is a portmanteau of the surname of a great surrealist painter René Magritt
 written in - Rust. It's also a subtle nod to Google's deprecated image manipulation tool - Picasa.
 
 ## Features
-As of `0.5.0` release, the following filters are supported or planned to be supported in the near future:
+As of `0.6.9` release, the following filters are supported or planned to be supported in the near future:
 - [x] Sepia
 - [x] Color invert
 - [x] Grayscale
@@ -16,8 +16,8 @@ As of `0.5.0` release, the following filters are supported or planned to be supp
 - [x] Brightness
 - [x] Contrast
 - [x] Blur with gaussian, box, and median kernels
-- [ ] Sharpen
-- [ ] Bilateral
+- [x] Sharpen
+- [x] Bilateral
 
 ## Installation
 Just clone the repository and build the binary. Run the following commands:
@@ -41,6 +41,11 @@ Run `help` command in the app to see usage instructions.
 ## Examples
 ### Filter showcase
 ![Filter showcase](./assets/filter-showcase.png)
+> Image by author
+### Noise reduction
+Bilateral and gaussian filters with identical spatial kernel applied to a noisy image.
+![Noise reduction](./assets/noise-reduction.png)
+> Image courtesy of Kimsan.lee [on Twitter](https://twitter.com/Kimsanlee6/status/1735926920439803972).
 ### Remove non-enclosing filter
 ```
 Welcome to Magrustte!

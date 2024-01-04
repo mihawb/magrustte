@@ -2,6 +2,6 @@ target/
 .idea/
 *.jpg
 *.png
+!assets/*
 *.exe
 *.xcf
-!assets/*
