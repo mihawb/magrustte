@@ -32,3 +32,18 @@ pub fn median(numbers: &mut Vec<f64>) -> f64 {
         numbers[mid]
     }
 }
+
+pub fn array_slice(array: &Array2<f64>, x: i32, y: i32, radius: i32) -> Array2<f64> {
+    let (width, height) = array.dim();
+    let mut res = Array2::<f64>::zeros((radius as usize * 2 + 1, radius as usize * 2 + 1));
+
+    for i in -radius..radius {
+        for j in -radius..radius {
+            let x_ = (x + i).max(0).min(width as i32 - 1);
+            let y_ = (y + j).max(0).min(height as i32 - 1);
+
+            res[[(radius + i) as usize, (radius + j) as usize]] = array[[x_ as usize, y_ as usize]];
+        }
+    }
+    res
+}
